@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="multigrip: Handyhalterung mit Dosenhalter und Aschefach aus dem 3D-Drucker. Projekt im Wahlfach Technologiemarketing, Hochschule Düsseldorf.">
+<link rel="icon" type="image/png" href="img/icon.png">
+<title>multigrip</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: helle Markenwelt, ein dunkler Video-Block, Montage als Sticky-Szene. Bewusst nur ein Look (Markenfarben). */
+:root{
+  --orange:#FF5A1F; --ink:#1C1F24; --grey:#4A5058; --mist:#F5F6F7; --line:#E6E8EB; --white:#FFFFFF; --muted-on-ink:#B8BDC4;
+  --display:"Archivo","Arial Narrow",system-ui,sans-serif; --text:"Inter",system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+body{background:var(--white);color:var(--ink);font-family:var(--text);font-size:16px;line-height:1.5}
+*{box-sizing:border-box}
+a{color:inherit}
+a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-offset:3px;border-radius:8px}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.kicker{font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.28em;color:var(--grey);margin:0}
+h1,h2,h3{font-family:var(--display);font-weight:800;margin:0;text-wrap:balance;letter-spacing:-.025em;line-height:1}
+h1{font-size:clamp(54px,8vw,96px)}
+h2{font-size:clamp(38px,5vw,56px)}
+h3{font-size:26px;letter-spacing:-.01em}
+.accent{color:var(--orange)}
+.btn{display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:0 24px;border-radius:12px;font-weight:600;text-decoration:none;border:0;cursor:pointer;font:600 16px var(--text)}
+.btn-primary{background:var(--orange);color:var(--white)}
+.btn-primary:hover{background:#E84A12}
+.btn-soft{background:var(--mist);color:var(--ink)}
+.btn-soft:hover{background:var(--line)}
+.chip{display:inline-block;background:var(--white);border-radius:999px;padding:6px 12px;font-size:14px;font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+
+/* Navigation */
+.nav{border-bottom:1px solid var(--line);background:var(--white)}
+.nav .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px;padding-block:10px}
+.nav img{height:30px;width:auto;display:block}
+.nav-links{display:flex;flex-wrap:wrap;align-items:center;gap:0 24px;font-weight:500;font-size:15px}
+.nav-links a{text-decoration:none;padding:12px 0}
+.nav-links a:hover{color:var(--orange)}
+.nav-links .ig{background:var(--ink);color:var(--white);padding:10px 16px;border-radius:999px;display:inline-flex;align-items:center;gap:8px}
+.nav-links .ig:hover{color:var(--white);background:#2C3038}
+
+/* Hero */
+.hero .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:40px;padding-block:64px 80px}
+.hero-copy{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:22px}
+.hero-copy p.lead{font-size:20px;color:var(--grey);margin:0;max-width:28rem}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px}
+.stats{display:flex;flex-wrap:wrap;gap:12px 36px;padding-top:18px;border-top:1px solid var(--line)}
+.stats b{display:block;font-family:var(--display);font-weight:800;font-size:26px;font-variant-numeric:tabular-nums}
+.stats span{font-size:14px;color:var(--grey)}
+.hero-pic{flex:1 1 400px;min-width:0;background:var(--mist);border-radius:28px;padding:28px;display:flex;justify-content:center}
+.hero-pic img{width:100%;max-width:440px;height:auto;display:block}
+
+/* Montage (Sticky-Szene) */
+.montage{position:relative;height:420vh;background:var(--mist)}
+.stage{position:sticky;top:env(safe-area-inset-top,0px);height:100vh;display:flex;align-items:center}
+.stage .wrap{width:100%;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:20px 64px}
+.stage-copy{flex:1 1 320px;max-width:420px;min-width:0;display:flex;flex-direction:column;gap:20px}
+.steps{position:relative;height:178px}
+.step{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;visibility:hidden;opacity:0}
+.step.on{visibility:visible;opacity:1;animation:stepIn .45s ease both}
+@keyframes stepIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.step .num{font-family:var(--display);font-weight:800;font-size:20px;color:var(--orange);font-variant-numeric:tabular-nums}
+.step .t{font-family:var(--display);font-weight:800;font-size:clamp(38px,5vw,58px);line-height:1;letter-spacing:-.025em}
+.step .d{font-size:17px;color:var(--grey)}
+.bar{height:4px;background:var(--line);border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--orange)}
+.replay{align-self:flex-start;min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--white);color:var(--ink);font:600 14px var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.stage-pic{flex:1 1 340px;max-width:560px;min-width:0;display:flex;justify-content:center}
+#seq{width:100%;max-width:100%;height:auto;max-height:80vh;aspect-ratio:455/640;object-fit:contain;display:block}
+@media (max-width:760px){
+  .stage .wrap{gap:8px}
+  .steps{height:118px}
+  .step .t{font-size:34px}
+  .step .d{font-size:15px}
+  .replay{display:none}
+  #seq{max-height:56vh;width:auto}
+}
+
+/* Video */
+.video{background:var(--ink);color:var(--white)}
+.video .wrap{display:flex;flex-direction:column;align-items:center;text-align:center;gap:24px;padding-block:80px}
+.video .kicker{color:var(--muted-on-ink)}
+.player{position:relative;width:100%;max-width:min(620px,72vh);aspect-ratio:1/1;border-radius:24px;overflow:hidden;background:var(--mist)}
+.player video{width:100%;height:100%;display:block;object-fit:cover}
+.play{position:absolute;inset:0;border:0;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.play span{width:96px;height:96px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;box-shadow:0 14px 34px rgba(28,31,36,.28);transition:transform .2s ease}
+.play:hover span{transform:scale(1.06)}
+
+/* Features */
+.section{padding-block:96px 24px}
+.section .wrap{display:flex;flex-direction:column;gap:28px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.card{background:var(--mist);border-radius:24px;padding:26px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.card .pic{height:230px;display:flex;align-items:center;justify-content:center;gap:8px}
+.card .pic img{max-height:230px;width:auto;max-width:100%}
+.card .pic.pair{align-items:flex-end}
+.card .pic.pair img{max-width:48%}
+.card p{margin:0;color:var(--grey)}
+.print{border:1px solid var(--line);border-radius:20px;padding:20px 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px}
+.print strong{font-family:var(--display);font-weight:800;font-size:22px}
+.print .chip{background:var(--mist)}
+.note{margin:0;font-size:13px;color:var(--grey)}
+
+/* Marke */
+.brand-row{display:flex;flex-wrap:wrap;gap:20px}
+.brand-tile{border-radius:24px;padding:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;min-height:210px;min-width:0}
+.brand-tile.light{flex:2 1 420px;background:var(--mist)}
+.brand-tile.dark{flex:1 1 260px;background:var(--ink)}
+.brand-tile img{width:100%;height:auto}
+.brand-tile.light img{max-width:380px}
+.brand-tile.dark img{max-width:260px}
+.brand-tile.icon{flex:0 1 210px;padding:0;overflow:hidden}
+.brand-tile.icon img{width:100%;height:100%;object-fit:cover}
+.swatches{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.swatch{border:1px solid var(--line);border-radius:18px;padding:0;background:var(--white);cursor:pointer;overflow:hidden;text-align:left;font:inherit;color:var(--ink)}
+.swatch i{display:block;height:84px}
+.swatch div{padding:12px 16px 14px;display:flex;flex-direction:column;gap:2px}
+.swatch b{font-family:var(--display);font-size:16px}
+.swatch code{font:600 14px var(--text)}
+.swatch small{font-size:13px;color:var(--grey)}
+
+/* Team */
+.team{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.person{background:var(--mist);border-radius:24px;padding:16px;display:flex;align-items:center;gap:20px}
+.person img{width:112px;height:112px;border-radius:16px;object-fit:cover;flex:0 0 112px}
+.person b{font-family:var(--display);font-weight:800;font-size:26px}
+
+/* Footer */
+footer{background:var(--ink);color:var(--white);margin-top:96px}
+footer .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-block:28px}
+footer img{height:28px;width:auto;display:block}
+footer a{font-weight:600;padding:12px 0}
+@media (prefers-reduced-motion:reduce){.step.on{animation:none}}
+</style>
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+
+<header class="nav">
+  <div class="wrap">
+    <a href="#start" aria-label="multigrip Startseite"><img src="img/logo.png" alt="multigrip"></a>
+    <nav class="nav-links" aria-label="Hauptnavigation">
+      <a href="#montage">Montage</a>
+      <a href="#video">Video</a>
+      <a href="#features">Features</a>
+      <a href="#team">Team</a>
+      <a class="ig" href="https://www.instagram.com/multigrip_official/">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6"/></svg>
+        Instagram</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero" id="start">
+  <div class="wrap">
+    <div class="hero-copy">
+      <p class="kicker">STICK IT. SCROLL IT. SIP IT.</p>
+      <h1>Alles im <span class="accent">Griff.</span></h1>
+      <p class="lead">Handy, Dose und Aschefach in einer Halterung. Für jede Scheibe, aus dem 3D-Drucker.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#montage">Montage ansehen</a>
+        <a class="btn btn-soft" href="#video"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l13 8-13 8z"/></svg>Video abspielen</a>
+      </div>
+      <div class="stats">
+        <div><b>62 bis 90 mm</b><span>Handybreite</span></div>
+        <div><b>0 bis 90°</b><span>Scheibenwinkel</span></div>
+        <div><b>Ø 68,8 mm</b><span>Dosenhalter</span></div>
+      </div>
+    </div>
+    <div class="hero-pic"><img src="img/hero.png" alt="multigrip zusammengebaut mit Handy und Getränkedose" width="640" height="799"></div>
+  </div>
+</section>
+
+<section class="montage" id="montage" aria-label="Montage beim Scrollen">
+  <div class="stage" id="stage">
+    <div class="wrap">
+      <div class="stage-copy">
+        <p class="kicker">MONTAGE · SCROLLEN</p>
+        <div class="steps" id="steps">
+          <div class="step on"><span class="num">01 / 07</span><span class="t">Hauptkörper</span><span class="d">Rückwand, Dosenhalter, Gehäuse</span></div>
+          <div class="step"><span class="num">02 / 07</span><span class="t">Aschefach</span><span class="d">Einschieben, rastet ein</span></div>
+          <div class="step"><span class="num">03 / 07</span><span class="t">Klemmbacken</span><span class="d">Auf die Schienen, zuschieben</span></div>
+          <div class="step"><span class="num">04 / 07</span><span class="t">Saugnäpfe</span><span class="d">Drei Stück im Dreieck</span></div>
+          <div class="step"><span class="num">05 / 07</span><span class="t">Adapter</span><span class="d">Winkel 0 bis 90° einstellen</span></div>
+          <div class="step"><span class="num">06 / 07</span><span class="t">Schrauben</span><span class="d">Vier Rändelschrauben, fest</span></div>
+          <div class="step"><span class="num">07 / 07</span><span class="t">Fertig.</span><span class="d">Handy rein. Dose rein.</span></div>
+        </div>
+        <div class="bar"><i id="bar"></i></div>
+        <button class="replay" id="replay" type="button"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l13 8-13 8z"/></svg>Automatisch abspielen</button>
+      </div>
+      <div class="stage-pic">
+        <canvas id="seq" width="455" height="640" role="img" aria-label="Montage-Animation: Die Einzelteile von multigrip setzen sich beim Scrollen zusammen"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="video" id="video">
+  <div class="wrap">
+    <p class="kicker">VIDEO</p>
+    <h2>In 10 Sekunden zusammengebaut.</h2>
+    <div class="player">
+      <video id="vid" src="img/montage.mp4" poster="img/video_poster.jpg" preload="metadata" playsinline></video>
+      <button class="play" id="play" type="button" aria-label="Video abspielen"><span><svg aria-hidden="true" width="34" height="34" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M8 5l12 7-12 7z"/></svg></span></button>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="features">
+  <div class="wrap">
+    <h2>Durchdacht. Gedruckt.</h2>
+    <div class="cards">
+      <article class="card">
+        <div class="pic"><img src="img/backen.png" alt="Klemmbacken auf den Schienen"></div>
+        <h3>Klick. Sitzt.</h3>
+        <p>Klemmbacken für jedes Handy.</p>
+        <div class="chips"><span class="chip">62 bis 90 mm</span><span class="chip">Raster 2,5 mm</span><span class="chip">spielfrei</span></div>
+      </article>
+      <article class="card">
+        <div class="pic"><img src="img/aschefach.png" alt="Herausgezogenes Aschefach"></div>
+        <h3>Asche? Ab ins Fach.</h3>
+        <p>Schublade mit Trichter und Münze.</p>
+        <div class="chips"><span class="chip">260 ml</span><span class="chip">rausziehen</span><span class="chip">rastet ein</span></div>
+      </article>
+      <article class="card">
+        <div class="pic pair"><img src="img/seite28.png" alt="Halterung an flacher Windschutzscheibe"><img src="img/seite60.png" alt="Halterung an steiler Scheibe"></div>
+        <h3>Jede Scheibe.</h3>
+        <p>Adapter mit drei Saugnäpfen.</p>
+        <div class="chips"><span class="chip">0 bis 90°</span><span class="chip">Winkelskala</span><span class="chip">werkzeuglos</span></div>
+      </article>
+    </div>
+    <div class="print">
+      <strong>Druck</strong>
+      <div class="chips"><span class="chip">PETG</span><span class="chip">5 Druckteile</span><span class="chip">0,2 mm</span><span class="chip">4 Wände</span><span class="chip">PrusaSlicer</span></div>
+    </div>
+    <p class="note">Glut nur auf der Münze ausdrücken. Sicht frei halten, nicht vor den Airbag montieren.</p>
+  </div>
+</section>
+
+<section class="section" id="marke">
+  <div class="wrap">
+    <h2>Marke</h2>
+    <div class="brand-row">
+      <div class="brand-tile light"><img src="img/logo.png" alt="multigrip Logo"><p class="kicker">STICK IT. SCROLL IT. SIP IT.</p></div>
+      <div class="brand-tile dark"><img src="img/logo_white.png" alt="multigrip Logo auf dunklem Grund"></div>
+      <div class="brand-tile icon"><img src="img/icon.png" alt="multigrip Icon"></div>
+    </div>
+    <div class="swatches" id="swatches"></div>
+  </div>
+</section>
+
+<section class="section" id="team">
+  <div class="wrap">
+    <h2>Team</h2>
+    <div class="team">
+      <div class="person"><img src="img/joel.jpg" alt="Joel Günther"><b>Joel Günther</b></div>
+      <div class="person"><img src="img/frederic.jpg" alt="Frederic Weiß"><b>Frederic Weiß</b></div>
+    </div>
+    <p class="note" style="font-size:15px">Wahlfach Technologiemarketing · Hochschule Düsseldorf · WS 2026/27</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <img src="img/logo_white.png" alt="multigrip">
+    <span style="color:var(--muted-on-ink);font-size:14px">Technologiemarketing · Hochschule Düsseldorf</span>
+    <a href="https://www.instagram.com/multigrip_official/">@multigrip_official</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // ---------- Montage beim Scrollen ----------
+  var N=60, PER=30, COLS=6, FW=455, FH=640;
+  var STARTS=[0,0.04,0.22,0.42,0.56,0.74,0.86];
+  var sheets=['img/montage_1.jpg','img/montage_2.jpg'].map(function(u){var im=new Image();im.decoding='async';im.onload=function(){drawn=-1};im.src=u;return im});
+  var cv=document.getElementById('seq'), ctx=cv.getContext('2d');
+  var sec=document.getElementById('montage'), stage=document.getElementById('stage');
+  var bar=document.getElementById('bar'), steps=[].slice.call(document.querySelectorAll('.step'));
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cur=0, target=0, drawn=-1, act=0, auto=0;
+  function blit(i,a){var sh=sheets[Math.floor(i/PER)];if(!sh||!sh.complete||!sh.naturalWidth)return false;var j=i%PER;ctx.globalAlpha=a;ctx.drawImage(sh,(j%COLS)*FW,Math.floor(j/COLS)*FH,FW,FH,0,0,FW,FH);return true}
+  function draw(p){
+    var f=p*(N-1); if(Math.abs(f-drawn)<0.005)return;
+    var i0=Math.floor(f), i1=Math.min(N-1,i0+1), a=f-i0;
+    ctx.globalAlpha=1; ctx.fillStyle='#F5F6F7'; ctx.fillRect(0,0,FW,FH);
+    if(!blit(i0,1))return; if(a>0.01)blit(i1,a); ctx.globalAlpha=1; drawn=f;
+    bar.style.width=(p*100).toFixed(1)+'%';
+    var n=0; for(var k=0;k<STARTS.length;k++) if(p>=STARTS[k]-0.02) n=k;
+    if(n!==act){steps.forEach(function(el,i){el.classList.toggle('on',i===n)});act=n}
+  }
+  function tick(){
+    if(auto){var k=Math.min(1,(performance.now()-auto)/5200);target=k;if(k>=1)auto=0}
+    else{var r=sec.getBoundingClientRect();var span=r.height-stage.offsetHeight;target=span>0?Math.min(1,Math.max(0,-r.top/span)):0}
+    cur+= reduce ? (target-cur) : (target-cur)*0.14;
+    if(Math.abs(target-cur)<0.0004)cur=target;
+    draw(cur); requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  document.getElementById('replay').addEventListener('click',function(){auto=performance.now();cur=0;drawn=-1});
+
+  // ---------- Video ----------
+  var vid=document.getElementById('vid'), play=document.getElementById('play');
+  play.addEventListener('click',function(){play.hidden=true;vid.controls=true;var pr=vid.play();if(pr&&pr.catch)pr.catch(function(){})});
+  vid.addEventListener('ended',function(){play.hidden=false;vid.controls=false;try{vid.currentTime=0}catch(e){}});
+
+  // ---------- Farbcodes ----------
+  var colors=[['Orange','#FF5A1F','RGB 255 · 90 · 31'],['Anthrazit','#1C1F24','RGB 28 · 31 · 36'],['Grau','#4A5058','RGB 74 · 80 · 88'],['Hellgrau','#F5F6F7','RGB 245 · 246 · 247'],['Weiß','#FFFFFF','RGB 255 · 255 · 255']];
+  var box=document.getElementById('swatches');
+  colors.forEach(function(c){
+    var b=document.createElement('button'); b.type='button'; b.className='swatch'; b.setAttribute('aria-label',c[0]+' '+c[1]+' kopieren');
+    b.innerHTML='<i style="background:'+c[1]+(c[1]==='#FFFFFF'||c[1]==='#F5F6F7'?';border-bottom:1px solid #E6E8EB':'')+'"></i><div><b>'+c[0]+'</b><code>'+c[1]+'</code><small>'+c[2]+'</small></div>';
+    b.addEventListener('click',function(){
+      var code=b.querySelector('code');
+      var done=function(){code.textContent='Kopiert ✓';setTimeout(function(){code.textContent=c[1]},1400)};
+      try{navigator.clipboard.writeText(c[1]).then(done,function(){var s=window.getSelection(),r=document.createRange();r.selectNodeContents(code);s.removeAllRanges();s.addRange(r)})}catch(e){}
+    });
+    box.appendChild(b);
+  });
+})();
+</script>
+
+</body>
+</html>
